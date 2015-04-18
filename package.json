@@ -1,7 +1,7 @@
 {
-  "name": "react-template",
+  "name": "super-tic-tac-toe",
   "version": "0.0.1",
-  "description": "React Template",
+  "description": "Tic Tac Toe but more intense.",
   "main": "src/index.js",
   "scripts": {
     "build": "browserify src/index.js -t babelify -o build/index.js",
