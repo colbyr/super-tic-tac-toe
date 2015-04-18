@@ -6,8 +6,7 @@ export default React.createClass({
   render() {
     return (
       <div>
-        <h2>Dashboard</h2>
-        <p>Welcome, welcome!</p>
+        <h2>This will be the game</h2>
       </div>
     );
   }
