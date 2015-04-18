@@ -3,15 +3,15 @@ import React, { PropTypes } from 'react/addons';
 var styles = {
   conatiner: {
     display: 'flex',
-    width: 300,
+    width: 240,
   },
   cell: {
     alignItems: 'center',
     border: '1px solid #EEE',
     display: 'flex',
-    height: 100,
+    height: 80,
     justifyContent: 'center',
-    width: 100,
+    width: 80,
   },
   field: {
     alignSelf: 'center',
@@ -21,8 +21,8 @@ var styles = {
   },
   row: {
     display: 'flex',
-    height: 100,
-    width: 300,
+    height: 80,
+    width: 240,
   },
 };
 

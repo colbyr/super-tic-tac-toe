@@ -5,10 +5,7 @@ export default React.createClass({
 
   render() {
     return (
-      <div>
-        <h1>SUPERTICTACTOE</h1>
-        <RouteHandler />
-      </div>
+      <RouteHandler />
     );
   }
 
