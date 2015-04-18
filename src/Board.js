@@ -1,11 +1,11 @@
 import { E } from './constants.js';
-import { partial } from 'lodash';
+import { winner } from './matrix_functions.js';
+import { merge, partial } from 'lodash';
 import React, { PropTypes } from 'react/addons';
 
 var styles = {
-  conatiner: {
-    display: 'flex',
-    width: 240,
+  container: {
+    opacity: '.5',
   },
   cell: {
     alignItems: 'center',
@@ -14,6 +14,9 @@ var styles = {
     height: 80,
     justifyContent: 'center',
     width: 80,
+    WebkitUserSelect: 'none',
+    MozUserSelect: 'none',
+    msUserSelect: 'none',
   },
   field: {
     alignSelf: 'center',
@@ -40,14 +43,18 @@ const Board = React.createClass({
   },
 
   render() {
+    let isWon = winner(this.props.board);
     return (
-      <div style={styles.container}>
+      <div
+        className="board"
+        style={isWon ? {opacity: '.5'} : null}>
         {this.props.board.map(this.renderRow)}
       </div>
     );
   },
 
   renderRow(row, rowIndex) {
+    let isWon = winner(this.props.board);
     return (
       <div
         key={`row-${rowIndex}`}
@@ -57,7 +64,7 @@ const Board = React.createClass({
           return (
             <div
               key={`cell-${columnIndex}`}
-              onClick={isEmpty ? partial(this.props.onMove, rowIndex, columnIndex) : null}
+              onClick={(isEmpty && !isWon) ? partial(this.props.onMove, rowIndex, columnIndex) : null}
               style={styles.cell}>
               {isEmpty ? '' : value}
             </div>
