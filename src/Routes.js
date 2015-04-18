@@ -1,10 +1,10 @@
 import App from './routes/App';
-import Dashboard from './routes/Dashboard';
+import Game from './Game';
 import { DefaultRoute, Route } from 'react-router';
 import React from 'react/addons';
 
 module.exports = (
   <Route handler={App} name="app" path="/">
-    <DefaultRoute handler={Dashboard} />
+    <DefaultRoute handler={Game} />
   </Route>
 );

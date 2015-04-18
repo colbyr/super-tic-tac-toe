@@ -6,7 +6,7 @@ export default React.createClass({
   render() {
     return (
       <div>
-        <h1>react-template</h1>
+        <h1>SUPERTICTACTOE</h1>
         <RouteHandler />
       </div>
     );
