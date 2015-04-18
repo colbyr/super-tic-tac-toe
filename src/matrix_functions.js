@@ -1,11 +1,11 @@
 import _ from 'lodash'
-import {EMPTY_SPACE} from 'constants'
+import {EMPTY_SPACE} from './constants'
 
-function add(board, piece, row, col) {
+export function add(board, piece, row, col) {
   board[row][col] = piece;
 }
 
-function winner(board) {
+export function winner(board) {
   var [[topRight, topCenter, topLeft],
        [midRight, midCenter, midLeft],
        [botRight, botCenter, botLeft]] = board;
