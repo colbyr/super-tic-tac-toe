@@ -1,0 +1,47 @@
+{
+  "name": "react-template",
+  "version": "0.0.1",
+  "description": "React Template",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "browserify src/index.js -t babelify -o build/index.js",
+    "test": "jest",
+    "watch": "watchify src/index.js -t babelify -o build/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/colbyr/react-template"
+  },
+  "keywords": [
+    "react"
+  ],
+  "author": "Colby Rabideau",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/colbyr/react-template/issues"
+  },
+  "homepage": "https://github.com/colbyr/react-template",
+  "dependencies": {
+    "flux": "^2.0.1",
+    "general-store": "^0.2.1",
+    "immutable": "^3.6.4",
+    "invariant": "^2.0.0",
+    "react": "^0.13.1",
+    "react-router": "^0.13.1"
+  },
+  "devDependencies": {
+    "babel": "^4.7.16",
+    "babelify": "^5.0.4",
+    "browserify": "^9.0.3",
+    "flow-bin": "^0.7.0",
+    "jest-cli": "^0.4.0",
+    "watchify": "^2.4.0"
+  },
+  "jest": {
+    "scriptPreprocessor": "<rootDir>/bin/test-preprocessor.js",
+    "testPathDirs": [
+      "<rootDir>/src"
+    ],
+    "unmockedModulePathPatterns": []
+  }
+}
