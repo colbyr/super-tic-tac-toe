@@ -1,3 +1,4 @@
+import { E } from './constants.js';
 import { partial } from 'lodash';
 import React, { PropTypes } from 'react/addons';
 
@@ -52,12 +53,13 @@ const Board = React.createClass({
         key={`row-${rowIndex}`}
         style={styles.row}>
         {row.map((value, columnIndex) => {
+          let isEmpty = value === E;
           return (
             <div
               key={`cell-${columnIndex}`}
-              onClick={partial(this.props.onMove, rowIndex, columnIndex)}
+              onClick={isEmpty ? partial(this.props.onMove, rowIndex, columnIndex) : null}
               style={styles.cell}>
-              {value}
+              {isEmpty ? '' : value}
             </div>
           );
         })}
