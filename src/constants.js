@@ -1,3 +1,5 @@
-export const EMPTY_SPACE = 'E';
-export const EMPTY_ROW = [EMPTY_SPACE,EMPTY_SPACE,EMPTY_SPACE]
+export const E = 'E';
+export const X = 'X';
+export const O = 'O';
+export const EMPTY_ROW = [E,E,E]
 export const EMPTY_BOARD = [EMPTY_ROW,EMPTY_ROW,EMPTY_ROW]
