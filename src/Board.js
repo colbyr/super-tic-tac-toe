@@ -42,19 +42,21 @@ const Board = React.createClass({
     onMove: PropTypes.func.isRequired,
   },
 
+  getIsActive() {
+    return !winner(this.props.board);
+  },
+
   render() {
-    let isWon = winner(this.props.board);
     return (
       <div
         className="board"
-        style={isWon ? {opacity: '.5'} : null}>
+        style={!this.getIsActive() ? {opacity: '.5'} : null}>
         {this.props.board.map(this.renderRow)}
       </div>
     );
   },
 
   renderRow(row, rowIndex) {
-    let isWon = winner(this.props.board);
     return (
       <div
         key={`row-${rowIndex}`}
@@ -64,7 +66,7 @@ const Board = React.createClass({
           return (
             <div
               key={`cell-${columnIndex}`}
-              onClick={(isEmpty && !isWon) ? partial(this.props.onMove, rowIndex, columnIndex) : null}
+              onClick={(isEmpty && this.getIsActive()) ? partial(this.props.onMove, rowIndex, columnIndex) : null}
               style={styles.cell}>
               {isEmpty ? '' : value}
             </div>
