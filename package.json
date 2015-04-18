@@ -46,6 +46,8 @@
     "testPathDirs": [
       "<rootDir>/src"
     ],
-    "unmockedModulePathPatterns": []
+    "unmockedModulePathPatterns": [
+      "node_modules"
+    ]
   }
 }
