@@ -15,7 +15,10 @@
   "keywords": [
     "react"
   ],
-  "author": "Colby Rabideau",
+  "author": [
+    "Colby Rabideau",
+    "Thom Crescenzi"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/colbyr/react-template/issues"
@@ -26,6 +29,7 @@
     "general-store": "^0.2.1",
     "immutable": "^3.6.4",
     "invariant": "^2.0.0",
+    "lodash": "^3.7.0",
     "react": "^0.13.1",
     "react-router": "^0.13.1"
   },
