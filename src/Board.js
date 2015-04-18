@@ -1,3 +1,4 @@
+import { partial } from 'lodash';
 import React, { PropTypes } from 'react/addons';
 
 var styles = {
@@ -33,7 +34,8 @@ const Board = React.createClass({
       PropTypes.arrayOf(
         PropTypes.string.isRequired
       ).isRequired
-    ).isRequired
+    ).isRequired,
+    onMove: PropTypes.func.isRequired,
   },
 
   render() {
@@ -44,22 +46,21 @@ const Board = React.createClass({
     );
   },
 
-  renderCell(cell, i) {
+  renderRow(row, rowIndex) {
     return (
       <div
-        key={`cell-${i}`}
-        style={styles.cell}>
-        {cell}
-      </div>
-    );
-  },
-
-  renderRow(row, i) {
-    return (
-      <div
-        key={`row-${i}`}
+        key={`row-${rowIndex}`}
         style={styles.row}>
-        {row.map(this.renderCell)}
+        {row.map((value, columnIndex) => {
+          return (
+            <div
+              key={`cell-${columnIndex}`}
+              onClick={partial(this.props.onMove, rowIndex, columnIndex)}
+              style={styles.cell}>
+              {value}
+            </div>
+          );
+        })}
       </div>
     );
   },

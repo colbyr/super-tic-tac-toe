@@ -1,3 +1,4 @@
+import { partial } from 'lodash';
 import Board from './Board.js';
 import React, { PropTypes } from 'react/addons';
 
@@ -21,6 +22,7 @@ var styles = {
 
 const SuperBoard = React.createClass({
   propTypes: {
+    onMove: PropTypes.func.isRequired,
     superBoard: PropTypes.arrayOf(
       PropTypes.arrayOf(
         PropTypes.arrayOf(
@@ -40,18 +42,22 @@ const SuperBoard = React.createClass({
     );
   },
 
-  renderBoard(board) {
-    return (
-      <div style={styles.board}>
-        <Board board={board} />
-      </div>
-    );
+  renderBoard(superRow, board, superBoard) {
   },
 
-  renderRow(row, i) {
+  renderRow(superRow, superRowIndex) {
     return (
       <div style={styles.row}>
-        {row.map(this.renderBoard)}
+        {superRow.map((board, superBoardIndex) => {
+          return (
+            <div style={styles.board}>
+              <Board
+                board={board}
+                onMove={partial(this.props.onMove, superRowIndex, superBoardIndex)}
+              />
+            </div>
+          );
+        })}
       </div>
     );
   },
