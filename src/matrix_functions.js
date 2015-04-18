@@ -9,7 +9,7 @@ export function add(board, piece, row, col) {
   }
 }
 
-export function winner(board) {
+function possiableWinsArray(board) {
   var [[topLeft, topCenter, topRight],
        [midLeft, midCenter, midRight],
        [botLeft, botCenter, botRight]] = board;
@@ -21,10 +21,24 @@ export function winner(board) {
   var leftCol = [topRight, midRight, botRight];
   var midCol = [topCenter, midCenter, botCenter];
   var rightCol = [topLeft, midLeft, botLeft];
-  return  _.chain([diagRightToLeft, diagLeftToRight, topRow, midRow,
-                    botRow, leftCol, midCol, rightCol])
+  return [diagRightToLeft, diagLeftToRight, topRow, midRow,
+                    botRow, leftCol, midCol, rightCol];
+}
+
+
+export function winner(board) {
+  return  _.chain(possiableWinsArray(board))
            .map(_.uniq)
            .filter(array => array.length === 1 && array[0] !== E)
            .first().first()
            .value();
+}
+
+export function superWinner(superBoard) {
+  var boardWinners = _.chain(superBoard)
+   .flatten()
+   .map(winner)
+   .chunk(3)
+   .value();
+  return winner(boardWinners);
 }

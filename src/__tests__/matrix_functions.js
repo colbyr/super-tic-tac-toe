@@ -1,7 +1,8 @@
 jest.dontMock('../matrix_functions');
 jest.dontMock('lodash');
+jest.dontMock('../constants');
 import * as Matrix from '../matrix_functions';
-import {X,O,E} from '../constants';
+import {X,O,E,EMPTY_SUPER_ROW} from '../constants';
 
 describe('Matrix',() => {
   it('exports add and winner', () => {
@@ -102,5 +103,19 @@ describe('winner', () => {
                  [E,E,E],
                  [X,X,O]];
     expect(Matrix.winner(board)).toEqual(undefined);
+  });
+});
+
+describe('superWinner', () => {
+  it('works in a simple case', () => {
+    var topLeft = [[X,X,X],
+                   [E,E,E],
+                   [E,E,E]];
+    var middle = [[X,X,X],
+                  [E,O,E],
+                  [E,E,E]];
+    var superRow = [topLeft,middle,topLeft];
+    var superBoard = [superRow, EMPTY_SUPER_ROW, EMPTY_SUPER_ROW];
+    expect(Matrix.superWinner(superBoard)).toEqual(X);
   });
 });
