@@ -52,8 +52,8 @@ export default React.createClass({
   },
 
   getIsTurn() {
-    let {activePlayer} = this.state.game;
-    return this.state.game[activePlayer] === UserInfo.get().username;
+    let {activePlayer isLocal} = this.state.game;
+    return isLocal || this.state.game[activePlayer] === UserInfo.get().username;
   },
 
   getReadyToPlay() {

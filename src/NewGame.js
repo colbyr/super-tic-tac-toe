@@ -5,7 +5,7 @@ import React, { PropTypes } from 'react/addons';
 import ReactFireMixin from 'reactfire';
 import UserInfo from './UserInfo.js'
 
-function createNewGame(callback) {
+function createNewGame(callback, isLocal) {
   let games = new Firebase('https://sttt.firebaseio.com/games');
   let activePlayer = sample([X, O]);
   let ref = games.push({
@@ -13,6 +13,7 @@ function createNewGame(callback) {
     game: emptySuperBoard(),
     lastMove: null,
     [activePlayer]: UserInfo.get().username,
+    isLocal: isLocal
   }, (error) => {
     if (error) {
       console.error(error);
@@ -46,7 +47,11 @@ const NewGame = React.createClass({
     });
   },
 
-  handleNewGame() {
+  handleLocalGame() {
+    this.handleNewGame(true);
+  },
+
+  handleNewGame(isLocal) {
     this.setState({pending: true});
     createNewGame((key, activePlayer) => {
       UserInfo.set({
@@ -56,7 +61,7 @@ const NewGame = React.createClass({
         'play_game',
         {game_id: key}
       );
-    });
+    }, isLocal);
   },
 
   render() {
@@ -75,6 +80,7 @@ const NewGame = React.createClass({
         </div>
         <br />
         {this.renderNewGameButton()}
+        {this.renderLocalGameButton()}
       </div>
     );
   },
@@ -86,6 +92,17 @@ const NewGame = React.createClass({
     return (
       <button onClick={this.handleNewGame}>
         Start New Game
+      </button>
+    );
+  },
+
+  renderLocalGameButton() {
+    if (!this.state.info.username || this.state.pending) {
+      return null;
+    }
+    return (
+      <button onClick={this.handleLocalGame}>
+        Start Local Game
       </button>
     );
   },
