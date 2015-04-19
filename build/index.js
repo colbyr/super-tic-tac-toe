@@ -38473,9 +38473,11 @@ var Board = React.createClass({
   },
 
   render: function render() {
-    debugger;
     var won = winner(this.props.board);
-    var classes = classNames({ inactive: !this.getIsActive() }, { wonx: won === X }, { wono: won === O });
+    var classes = classNames({
+      inactive: !this.getIsActive(),
+      wonx: won === X,
+      wono: won === O });
     return React.createElement(
       "div",
       { className: classes },
@@ -38511,7 +38513,7 @@ var Board = React.createClass({
 
 module.exports = Board;
 
-},{"./constants.js":228,"./matrix_functions.js":230,"classnames":2,"lodash":8,"react/addons":48}],223:[function(require,module,exports){
+},{"./constants.js":229,"./matrix_functions.js":231,"classnames":2,"lodash":8,"react/addons":48}],223:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38546,6 +38548,8 @@ var PropTypes = _reactAddons.PropTypes;
 
 var ReactFireMixin = _interopRequire(require("reactfire"));
 
+var UserInfo = _interopRequire(require("./UserInfo.js"));
+
 function getFocused(superBoard, lastMove) {
   if (!lastMove || winner(superBoard[lastMove.rowIndex][lastMove.columnIndex])) {
     return null;
@@ -38567,8 +38571,34 @@ module.exports = React.createClass({
     this.bindAsObject(new Firebase("https://sttt.firebaseio.com/games/" + this.context.router.getCurrentParams().game_id), "game");
   },
 
+  getGameKey: function getGameKey() {
+    return this.firebaseRefs.game.key();
+  },
+
   getInitialState: function getInitialState() {
     return {};
+  },
+
+  getInviteURL: function getInviteURL() {
+    var currentPiece = UserInfo.get()[this.getGameKey()];
+
+    var _UserInfo$get = UserInfo.get();
+
+    var username = _UserInfo$get.username;
+
+    return "" + location.toString() + "/" + (currentPiece === X ? O : X);
+  },
+
+  getIsTurn: function getIsTurn() {
+    var _state$game = this.state.game;
+    var activePlayer = _state$game.activePlayer;
+    var isLocal = _state$game.isLocal;
+
+    return isLocal || this.state.game[activePlayer] === UserInfo.get().username;
+  },
+
+  getReadyToPlay: function getReadyToPlay() {
+    return this.state.game.O && this.state.game.X;
   },
 
   handleMove: function handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
@@ -38577,7 +38607,11 @@ module.exports = React.createClass({
     var lastMove = _state$game.lastMove;
     var game = _state$game.game;
 
-    this.firebaseRefs.game.set({
+    if (!this.getIsTurn()) {
+      window.alert("Woah. It's not your turn, " + UserInfo.get().username + " Pump the brakes.");
+      return;
+    }
+    this.firebaseRefs.game.update({
       activePlayer: activePlayer === X ? O : X,
       game: React.addons.update(game, _defineProperty({}, superRowIndex, _defineProperty({}, superColumnIndex, _defineProperty({}, rowIndex, _defineProperty({}, columnIndex, { $set: activePlayer }))))),
       lastMove: { superRowIndex: superRowIndex, superColumnIndex: superColumnIndex, rowIndex: rowIndex, columnIndex: columnIndex } });
@@ -38612,24 +38646,64 @@ module.exports = React.createClass({
     return React.createElement(
       "div",
       null,
-      React.createElement(
-        "p",
-        null,
-        "Active player: ",
-        activePlayer
-      ),
+      this.renderInvite(),
+      this.renderActivePlayer(),
       React.createElement(SuperBoard, {
         focused: getFocused(game, lastMove),
         onMove: this.handleMove,
         superBoard: game
       })
     );
-  } });
+  },
 
-},{"./SuperBoard.js":226,"./constants.js":228,"./matrix_functions.js":230,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],224:[function(require,module,exports){
+  renderActivePlayer: function renderActivePlayer() {
+    if (!this.getReadyToPlay()) {
+      return null;
+    }
+    if (this.getIsTurn()) {
+      return React.createElement(
+        "p",
+        null,
+        "It's your turn, ",
+        React.createElement(
+          "strong",
+          null,
+          UserInfo.get().username
+        ),
+        "!"
+      );
+    }
+    return React.createElement(
+      "p",
+      null,
+      "It's ",
+      this.state.game.activePlayer,
+      "'s turn."
+    );
+  },
+
+  renderInvite: function renderInvite() {
+    if (this.getReadyToPlay()) {
+      return null;
+    }
+    return React.createElement(
+      "label",
+      null,
+      "Invite URL: ",
+      React.createElement("input", {
+        style: { width: 300 },
+        value: this.getInviteURL()
+      })
+    );
+  }
+});
+
+},{"./SuperBoard.js":227,"./UserInfo.js":228,"./constants.js":229,"./matrix_functions.js":231,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],224:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+var _defineProperty = function (obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); };
 
 var _constantsJs = require("./constants.js");
 
@@ -38651,17 +38725,105 @@ var ReactFireMixin = _interopRequire(require("reactfire"));
 
 var UserInfo = _interopRequire(require("./UserInfo.js"));
 
-function createNewGame(callback) {
-  var games = new Firebase("https://sttt.firebaseio.com/games");
-  var ref = games.push({
-    activePlayer: sample([X, O]),
-    game: emptySuperBoard(),
-    lastMove: null }, function (error) {
+function joinGame(key, as_player, callback) {
+  var game = new Firebase("https://sttt.firebaseio.com/games/" + key);
+  var ref = game.update(_defineProperty({}, as_player, UserInfo.get().username || ""), function (error) {
     if (error) {
       console.error(error);
       return;
     }
-    callback(ref.key());
+    callback();
+  });
+}
+
+var JoinGame = React.createClass({
+  displayName: "JoinGame",
+
+  contextTypes: {
+    router: PropTypes.func.isRequired },
+
+  componentWillMount: function componentWillMount() {
+    var _this = this;
+
+    var _context$router$getCurrentParams = this.context.router.getCurrentParams();
+
+    var game_id = _context$router$getCurrentParams.game_id;
+    var as_player = _context$router$getCurrentParams.as_player;
+
+    joinGame(game_id, as_player, function () {
+      _this.context.router.replaceWith("play_game", { game_id: game_id });
+    });
+  },
+
+  render: function render() {
+    var _context$router$getCurrentParams = this.context.router.getCurrentParams();
+
+    var game_id = _context$router$getCurrentParams.game_id;
+    var as_player = _context$router$getCurrentParams.as_player;
+
+    return React.createElement(
+      "div",
+      null,
+      "Joining game #",
+      game_id,
+      " as ",
+      as_player,
+      "..."
+    );
+  } });
+
+module.exports = JoinGame;
+
+},{"./UserInfo.js":228,"./constants.js":229,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],225:[function(require,module,exports){
+"use strict";
+
+var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
+
+var _defineProperty = function (obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); };
+
+var _constantsJs = require("./constants.js");
+
+var emptySuperBoard = _constantsJs.emptySuperBoard;
+var O = _constantsJs.O;
+var X = _constantsJs.X;
+
+var Firebase = _interopRequire(require("firebase"));
+
+var _lodash = require("lodash");
+
+var merge = _lodash.merge;
+var sample = _lodash.sample;
+
+var _reactAddons = require("react/addons");
+
+var React = _interopRequire(_reactAddons);
+
+var PropTypes = _reactAddons.PropTypes;
+
+var ReactFireMixin = _interopRequire(require("reactfire"));
+
+var UserInfo = _interopRequire(require("./UserInfo.js"));
+
+function createNewGame(callback, isLocal) {
+  var games = new Firebase("https://sttt.firebaseio.com/games");
+  var activePlayer = sample([X, O]);
+  var ref = games.push((function () {
+    var _games$push = {
+      activePlayer: activePlayer,
+      game: emptySuperBoard(),
+      lastMove: null };
+
+    _defineProperty(_games$push, activePlayer, UserInfo.get().username);
+
+    _defineProperty(_games$push, "isLocal", isLocal);
+
+    return _games$push;
+  })(), function (error) {
+    if (error) {
+      console.error(error);
+      return;
+    }
+    callback(ref.key(), activePlayer);
   });
 }
 
@@ -38671,25 +38833,37 @@ var NewGame = React.createClass({
   contextTypes: {
     router: PropTypes.func.isRequired },
 
+  componentDidUpdate: function componentDidUpdate() {
+    UserInfo.set(this.state.info);
+  },
+
   getInitialState: function getInitialState() {
     return {
+      info: UserInfo.get(),
       pending: false };
   },
 
   handleUserUpdate: function handleUserUpdate(_ref) {
     var value = _ref.target.value;
 
-    UserInfo.set({
-      username: value });
+    this.setState({
+      info: merge({}, this.state.info, {
+        username: value }) });
   },
 
-  handleNewGame: function handleNewGame() {
+  handleLocalGame: function handleLocalGame() {
+    this.handleNewGame(true);
+  },
+
+  handleNewGame: function handleNewGame(isLocal) {
     var _this = this;
 
+    console.log(isLocal);
     this.setState({ pending: true });
-    createNewGame(function (key) {
+    createNewGame(function (key, activePlayer) {
+      UserInfo.set(_defineProperty({}, key, activePlayer));
       _this.context.router.replaceWith("play_game", { game_id: key });
-    });
+    }, isLocal);
   },
 
   render: function render() {
@@ -38706,29 +38880,45 @@ var NewGame = React.createClass({
           React.createElement("input", {
             onChange: this.handleUserUpdate,
             placeholder: "enter user name",
-            value: UserInfo.get().username
+            value: this.state.info.username
           })
         )
       ),
       React.createElement("br", null),
-      this.renderNewGameButton()
+      this.renderNewGameButton(),
+      this.renderLocalGameButton()
     );
   },
 
   renderNewGameButton: function renderNewGameButton() {
-    if (!UserInfo.get().username || this.state.pending) {
+    var _this = this;
+
+    if (!this.state.info.username || this.state.pending) {
       return null;
     }
     return React.createElement(
       "button",
-      { onClick: this.handleNewGame },
+      { onClick: function () {
+          return _this.handleNewGame(false);
+        } },
       "Start New Game"
+    );
+  },
+
+  renderLocalGameButton: function renderLocalGameButton() {
+    if (!this.state.info.username || this.state.pending) {
+      return null;
+    }
+    return React.createElement(
+      "button",
+      { onClick: this.handleLocalGame },
+      "Start Local Game"
     );
   } });
 
 module.exports = NewGame;
 
-},{"./UserInfo.js":227,"./constants.js":228,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],225:[function(require,module,exports){
+},{"./UserInfo.js":228,"./constants.js":229,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],226:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38736,6 +38926,8 @@ var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["defau
 var App = _interopRequire(require("./routes/App"));
 
 var Game = _interopRequire(require("./Game"));
+
+var JoinGame = _interopRequire(require("./JoinGame.js"));
 
 var NewGame = _interopRequire(require("./NewGame"));
 
@@ -38750,10 +38942,11 @@ module.exports = React.createElement(
   Route,
   { handler: App, name: "app", path: "/" },
   React.createElement(Route, { handler: Game, name: "play_game", path: "/:game_id" }),
+  React.createElement(Route, { handler: JoinGame, name: "join_game", path: "/:game_id/:as_player" }),
   React.createElement(DefaultRoute, { handler: NewGame, name: "new_game" })
 );
 
-},{"./Game":223,"./NewGame":224,"./routes/App":231,"react-router":33,"react/addons":48}],226:[function(require,module,exports){
+},{"./Game":223,"./JoinGame.js":224,"./NewGame":225,"./routes/App":232,"react-router":33,"react/addons":48}],227:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38810,7 +39003,7 @@ var SuperBoard = React.createClass({
 
 module.exports = SuperBoard;
 
-},{"./Board.js":222,"lodash":8,"react/addons":48}],227:[function(require,module,exports){
+},{"./Board.js":222,"lodash":8,"react/addons":48}],228:[function(require,module,exports){
 "use strict";
 
 var merge = require("lodash").merge;
@@ -38828,7 +39021,7 @@ var UserInfo = {
 
 module.exports = UserInfo;
 
-},{"lodash":8}],228:[function(require,module,exports){
+},{"lodash":8}],229:[function(require,module,exports){
 "use strict";
 
 exports.emptyRow = emptyRow;
@@ -38861,7 +39054,7 @@ function emptySuperBoard() {
   return [emptySuperRow(), emptySuperRow(), emptySuperRow()];
 }
 
-},{}],229:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38890,7 +39083,7 @@ module.exports = {
   rootNode: rootNode
 };
 
-},{"./Routes":225,"flux":4,"general-store":7,"react-router":33,"react/addons":48}],230:[function(require,module,exports){
+},{"./Routes":226,"flux":4,"general-store":7,"react-router":33,"react/addons":48}],231:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38959,7 +39152,7 @@ function superWinner(superBoard) {
   return winner(boardWinners);
 }
 
-},{"./constants":228,"lodash":8}],231:[function(require,module,exports){
+},{"./constants":229,"lodash":8}],232:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38977,4 +39170,4 @@ module.exports = React.createClass({
 
 });
 
-},{"react-router":33,"react/addons":48}]},{},[229]);
+},{"react-router":33,"react/addons":48}]},{},[230]);
