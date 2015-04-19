@@ -7,8 +7,9 @@ import UserInfo from './UserInfo.js'
 
 function createNewGame(callback) {
   let games = new Firebase('https://sttt.firebaseio.com/games');
+  let activePlayer = sample([X, O]);
   let ref = games.push({
-    activePlayer: sample([X, O]),
+    activePlayer: activePlayer,
     game: emptySuperBoard(),
     lastMove: null,
   }, (error) => {
@@ -16,7 +17,7 @@ function createNewGame(callback) {
       console.error(error);
       return;
     }
-    callback(ref.key());
+    callback(ref.key(), activePlayer);
   });
 }
 
@@ -39,7 +40,10 @@ const NewGame = React.createClass({
 
   handleNewGame() {
     this.setState({pending: true});
-    createNewGame(key => {
+    createNewGame((key, activePlayer) => {
+      UserInfo.set({
+        [key]: activePlayer,
+      });
       this.context.router.replaceWith(
         'play_game',
         {game_id: key}

@@ -5,6 +5,7 @@ import { emptySuperBoard, O, X } from './constants.js';
 import { superWinner, winner } from './matrix_functions.js';
 import React, { PropTypes } from 'react/addons';
 import ReactFireMixin from 'reactfire';
+import UserInfo from './UserInfo.js';
 
 function getFocused(superBoard, lastMove) {
   if (
@@ -40,8 +41,22 @@ export default React.createClass({
     return {};
   },
 
+  getIsTurn() {
+    let info = UserInfo.get();
+    let {activePlayer} = this.state.game;
+    return activePlayer === info[this.firebaseRefs.game.key()];
+  },
+
   handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
     let {activePlayer, lastMove, game} = this.state.game;
+    if (!this.getIsTurn()) {
+      window.alert(
+        'Woah. It\'s not your turn, ' +
+        UserInfo.get().username +
+        ' Pump the brakes.'
+      );
+      return;
+    }
     this.firebaseRefs.game.set({
       activePlayer: activePlayer === X ? O : X,
       game: React.addons.update(
@@ -70,7 +85,7 @@ export default React.createClass({
     }
     return (
       <div>
-        <p>Active player: {activePlayer}</p>
+        {this.renderActivePlayer()}
         <SuperBoard
           focused={getFocused(game, lastMove)}
           onMove={this.handleMove}
@@ -78,6 +93,15 @@ export default React.createClass({
         />
       </div>
     );
+  },
+
+  renderActivePlayer() {
+    if (this.getIsTurn()) {
+      return (
+        <p>It's your turn, <strong>{UserInfo.get().username}</strong>!</p>
+      );
+    }
+    return <p>It's {this.state.game.activePlayer}'s turn.</p>
   },
 });
 
