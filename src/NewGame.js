@@ -52,7 +52,6 @@ const NewGame = React.createClass({
   },
 
   handleNewGame(isLocal) {
-    console.log(isLocal)
     this.setState({pending: true});
     createNewGame((key, activePlayer) => {
       UserInfo.set({
