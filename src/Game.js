@@ -1,7 +1,7 @@
 import { cloneDeep, sample } from 'lodash';
 import SuperBoard from './SuperBoard.js';
 import { emptySuperBoard, O, X } from './constants.js';
-import { winner } from './matrix_functions.js';
+import { superWinner, winner } from './matrix_functions.js';
 import React from 'react/addons';
 import { RouteHandler } from 'react-router';
 
@@ -25,7 +25,6 @@ export default React.createClass({
   },
 
   handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
-    console.log('move!', superRowIndex, superColumnIndex, rowIndex, columnIndex);
     this.state.game[superRowIndex][superColumnIndex][rowIndex][columnIndex] = this.state.activePlayer;
     this.setState({
       activePlayer: this.state.activePlayer === X ? O : X,
@@ -35,7 +34,17 @@ export default React.createClass({
   },
 
   render() {
-    console.log(this.state.focused)
+    if (superWinner(this.state.game)) {
+      return (
+        <h1>
+          OMG
+          {' '}
+          <strong>{this.state.activePlayer === X ? O : X}</strong>
+          {' '}
+          WINS!
+        </h1>
+      );
+    }
     return (
       <div>
         <p>Active player: {this.state.activePlayer}</p>
