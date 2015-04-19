@@ -52,6 +52,7 @@ const NewGame = React.createClass({
   },
 
   handleNewGame(isLocal) {
+    console.log(isLocal)
     this.setState({pending: true});
     createNewGame((key, activePlayer) => {
       UserInfo.set({
@@ -90,7 +91,7 @@ const NewGame = React.createClass({
       return null;
     }
     return (
-      <button onClick={this.handleNewGame}>
+      <button onClick={() => this.handleNewGame(false)}>
         Start New Game
       </button>
     );

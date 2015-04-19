@@ -8,7 +8,7 @@ import UserInfo from './UserInfo.js'
 function joinGame(key, as_player, callback) {
   let game = new Firebase('https://sttt.firebaseio.com/games/' + key);
   let ref = game.update({
-    [as_player]: UserInfo.get().username,
+    [as_player]: UserInfo.get().username || '',
   }, (error) => {
     if (error) {
       console.error(error);

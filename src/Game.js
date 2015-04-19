@@ -52,7 +52,7 @@ export default React.createClass({
   },
 
   getIsTurn() {
-    let {activePlayer isLocal} = this.state.game;
+    let {activePlayer, isLocal} = this.state.game;
     return isLocal || this.state.game[activePlayer] === UserInfo.get().username;
   },
 
