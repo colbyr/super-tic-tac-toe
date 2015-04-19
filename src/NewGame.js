@@ -12,6 +12,7 @@ function createNewGame(callback) {
     activePlayer: activePlayer,
     game: emptySuperBoard(),
     lastMove: null,
+    [activePlayer]: UserInfo.get().username,
   }, (error) => {
     if (error) {
       console.error(error);
