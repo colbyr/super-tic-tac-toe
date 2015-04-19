@@ -1,6 +1,6 @@
 import { emptySuperBoard, O, X } from './constants.js';
 import Firebase from 'firebase';
-import { sample } from 'lodash';
+import { sample,merge } from 'lodash';
 import React, { PropTypes } from 'react/addons';
 import ReactFireMixin from 'reactfire';
 import UserInfo from './UserInfo.js'
@@ -24,7 +24,16 @@ const JoinGame = React.createClass({
   },
 
   componentWillMount() {
+    UserInfo.get().username ? this.continueToGame() : null;
+  },
+
+  continueToGame() {
     let {game_id, as_player} = this.context.router.getCurrentParams();
+    let username = this.state.info.username;
+    debugger;
+    UserInfo.set({
+      [as_player]: username,
+    });
     joinGame(game_id, as_player, () => {
       this.context.router.replaceWith(
         'play_game',
@@ -33,22 +42,28 @@ const JoinGame = React.createClass({
     });
   },
 
+  getInitialState() {
+    return {
+      info: UserInfo.get(),
+    };
+  },
+
+  handleUserUpdate({target: {value}}) {
+    this.setState({
+      info: merge({}, this.state.info, {
+        username: value,
+      }),
+    });
+  },
+
   render() {
     let {game_id, as_player} = this.context.router.getCurrentParams();
     let username = UserInfo.get().username;
     return (
       <div>
-        {username ? renderGameJoin() : renderNewPlayer()}
+        {this.renderNewPlayer()}
       </div>
     )
-  },
-
-  renderGameJoin(game_id, as_player) {
-    return (
-      <div>
-        Joining game #{game_id} as {as_player}...
-      </div>
-    );
   },
 
   renderNewPlayer() {
@@ -62,7 +77,7 @@ const JoinGame = React.createClass({
            value={this.state.info.username}
           />
         </label>
-        {this.renderContinue}
+        {this.renderContinue()}
       </div>
     );
   },
@@ -72,7 +87,7 @@ const JoinGame = React.createClass({
       return null;
     }
     return (
-      <button onClick={this.continue}>
+      <button onClick={this.continueToGame}>
         Continue
       </button>
     )
