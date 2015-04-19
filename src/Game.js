@@ -19,12 +19,22 @@ function getFocused(superBoard, lastMove) {
 }
 
 export default React.createClass({
+  mixins: [ReactFireMixin],
+
   getInitialState() {
     return {
       activePlayer: sample([X, O]),
       game: emptySuperBoard(),
       lastMove: null,
     };
+  },
+
+  componentWillMount: function() {
+    this.bindAsObject(new Firebase('https://sttt.firebaseio.com/game'), 'fireGame');
+  },
+
+  componentWillMount: function() {
+    this.unbind('fireGame');
   },
 
   handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
@@ -50,7 +60,7 @@ export default React.createClass({
     }
     return (
       <div>
-        <p>Active player: {this.state.activePlayer}</p>
+        <p>Active player: {this.state.fireGame.activePlayer}</p>
         <SuperBoard
           focused={getFocused(this.state.game, this.state.lastMove)}
           onMove={this.handleMove}
