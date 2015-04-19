@@ -27,11 +27,12 @@ const Board = React.createClass({
   },
 
   render() {
-    debugger;
     let won = winner(this.props.board);
-    let classes = classNames({inactive: !this.getIsActive()},
-                             {wonx: won === X},
-                             {wono: won === O});
+    let classes = classNames({
+      inactive: !this.getIsActive(),
+      wonx: won === X,
+      wono: won === O,
+    });
     return (
       <div className={classes} >
         {this.props.board.map(this.renderRow)}
