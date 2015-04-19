@@ -5,13 +5,16 @@ import { superWinner, winner } from './matrix_functions.js';
 import React from 'react/addons';
 import { RouteHandler } from 'react-router';
 
-function getFocused(superBoard, rowIndex, columnIndex) {
-  if (winner(superBoard[rowIndex][columnIndex])) {
+function getFocused(superBoard, lastMove) {
+  if (
+    !lastMove ||
+    winner(superBoard[lastMove.rowIndex][lastMove.columnIndex])
+  ) {
     return null;
   }
   return {
-    superRowIndex: rowIndex,
-    superColumnIndex: columnIndex,
+    superRowIndex: lastMove.rowIndex,
+    superColumnIndex: lastMove.columnIndex,
   };
 }
 
@@ -20,7 +23,7 @@ export default React.createClass({
     return {
       activePlayer: sample([X, O]),
       game: emptySuperBoard(),
-      focused: null,
+      lastMove: null,
     };
   },
 
@@ -29,7 +32,7 @@ export default React.createClass({
     this.setState({
       activePlayer: this.state.activePlayer === X ? O : X,
       game: this.state.game,
-      focused: getFocused(this.state.game, rowIndex, columnIndex),
+      lastMove: {superRowIndex, superColumnIndex, rowIndex, columnIndex},
     });
   },
 
@@ -49,7 +52,7 @@ export default React.createClass({
       <div>
         <p>Active player: {this.state.activePlayer}</p>
         <SuperBoard
-          focused={this.state.focused}
+          focused={getFocused(this.state.game, this.state.lastMove)}
           onMove={this.handleMove}
           superBoard={this.state.game}
         />
