@@ -5,7 +5,6 @@ import { emptySuperBoard, O, X } from './constants.js';
 import { superWinner, winner } from './matrix_functions.js';
 import React, { PropTypes } from 'react/addons';
 import ReactFireMixin from 'reactfire';
-import { RouteHandler } from 'react-router';
 
 function getFocused(superBoard, lastMove) {
   if (
@@ -33,38 +32,37 @@ export default React.createClass({
         'https://sttt.firebaseio.com/games/' +
           this.context.router.getCurrentParams().game_id
       ),
-      "fireGame"
+      "game"
     );
   },
 
   getInitialState() {
-    return {
-      activePlayer: sample([X, O]),
-      game: emptySuperBoard(),
-      lastMove: null,
-    };
+    return {};
   },
 
   handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
-    this.state.game[superRowIndex][superColumnIndex][rowIndex][columnIndex] = this.state.activePlayer;
-    this.setState({
-      activePlayer: this.state.activePlayer === X ? O : X,
-      game: this.state.game,
+    let {activePlayer, lastMove, game} = this.state.game;
+    this.firebaseRefs.game.set({
+      activePlayer: activePlayer === X ? O : X,
+      game: React.addons.update(
+        game,
+        {[superRowIndex]: {[superColumnIndex]: {[rowIndex]: {[columnIndex]: {$set: activePlayer}}}}}
+      ),
       lastMove: {superRowIndex, superColumnIndex, rowIndex, columnIndex},
     });
   },
 
   render() {
-    if (!this.state.fireGame) {
+    if (!this.state.game) {
       return <p>loading</p>;
     }
-    console.log(this.state.fireGame)
-    if (superWinner(this.state.game)) {
+    let {activePlayer, lastMove, game} = this.state.game;
+    if (superWinner(game)) {
       return (
         <h1>
           OMG
           {' '}
-          <strong>{this.state.activePlayer === X ? O : X}</strong>
+          <strong>{activePlayer === X ? O : X}</strong>
           {' '}
           WINS!
         </h1>
@@ -72,11 +70,11 @@ export default React.createClass({
     }
     return (
       <div>
-        <p>Active player: {this.state.activePlayer}</p>
+        <p>Active player: {activePlayer}</p>
         <SuperBoard
-          focused={getFocused(this.state.game, this.state.lastMove)}
+          focused={getFocused(game, lastMove)}
           onMove={this.handleMove}
-          superBoard={this.state.game}
+          superBoard={game}
         />
       </div>
     );
