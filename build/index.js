@@ -38434,7 +38434,11 @@ var ReactFireMixin = {
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
 
-var E = require("./constants.js").E;
+var _constantsJs = require("./constants.js");
+
+var E = _constantsJs.E;
+var X = _constantsJs.X;
+var O = _constantsJs.O;
 
 var winner = require("./matrix_functions.js").winner;
 
@@ -38469,7 +38473,9 @@ var Board = React.createClass({
   },
 
   render: function render() {
-    var classes = classNames({ inactive: !this.getIsActive() });
+    debugger;
+    var won = winner(this.props.board);
+    var classes = classNames({ inactive: !this.getIsActive() }, { wonx: won === X }, { wono: won === O });
     return React.createElement(
       "div",
       { className: classes },
