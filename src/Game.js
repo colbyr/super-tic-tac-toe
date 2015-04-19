@@ -28,7 +28,6 @@ export default React.createClass({
   mixins: [ReactFireMixin],
 
   componentWillMount() {
-    console.log(this.context.router.getCurrentParams().game_id)
     this.bindAsObject(
       new Firebase(
         'https://sttt.firebaseio.com/games/' +
