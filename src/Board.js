@@ -2,33 +2,9 @@ import { E } from './constants.js';
 import { winner } from './matrix_functions.js';
 import { merge, partial } from 'lodash';
 import React, { PropTypes } from 'react/addons';
+import classNames from 'classnames';
 
 var styles = {
-  container: {
-    opacity: '.5',
-  },
-  cell: {
-    alignItems: 'center',
-    border: '1px solid #EEE',
-    display: 'flex',
-    height: 80,
-    justifyContent: 'center',
-    width: 80,
-    WebkitUserSelect: 'none',
-    MozUserSelect: 'none',
-    msUserSelect: 'none',
-  },
-  field: {
-    alignSelf: 'center',
-    display: 'flex',
-    textAlign: 'center',
-    width: '100%',
-  },
-  row: {
-    display: 'flex',
-    height: 80,
-    width: 240,
-  },
 };
 
 const Board = React.createClass({
@@ -47,10 +23,12 @@ const Board = React.createClass({
   },
 
   render() {
+    let isWon = winner(this.props.board);
+    let classes = classNames({inactive: isWon})
     return (
       <div
-        className="board"
-        style={!this.getIsActive() ? {opacity: '.5'} : null}>
+        className={classes}
+      >
         {this.props.board.map(this.renderRow)}
       </div>
     );
@@ -60,14 +38,14 @@ const Board = React.createClass({
     return (
       <div
         key={`row-${rowIndex}`}
-        style={styles.row}>
+        className='row'>
         {row.map((value, columnIndex) => {
           let isEmpty = value === E;
           return (
             <div
               key={`cell-${columnIndex}`}
               onClick={(isEmpty && this.getIsActive()) ? partial(this.props.onMove, rowIndex, columnIndex) : null}
-              style={styles.cell}>
+              className='cell'>
               {isEmpty ? '' : value}
             </div>
           );

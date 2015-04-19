@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/colbyr/react-template",
   "dependencies": {
+    "classnames": "^1.2.0",
     "flux": "^2.0.1",
     "general-store": "^0.2.1",
     "immutable": "^3.6.4",

@@ -2,24 +2,6 @@ import { partial } from 'lodash';
 import Board from './Board.js';
 import React, { PropTypes } from 'react/addons';
 
-var styles = {
-  conatiner: {
-    display: 'flex',
-    width: 840,
-  },
-  board: {
-    border: '1px solid #AAA',
-    height: 240,
-    padding: 20,
-    width: 240,
-  },
-  row: {
-    display: 'flex',
-    height: 280,
-    width: 840,
-  },
-};
-
 const SuperBoard = React.createClass({
   propTypes: {
     onMove: PropTypes.func.isRequired,
@@ -36,7 +18,7 @@ const SuperBoard = React.createClass({
 
   render() {
     return (
-      <div style={styles.container}>
+      <div className='container'>
         {this.props.superBoard.map(this.renderRow)}
       </div>
     );
@@ -47,10 +29,10 @@ const SuperBoard = React.createClass({
 
   renderRow(superRow, superRowIndex) {
     return (
-      <div style={styles.row}>
+      <div className='super-row'>
         {superRow.map((board, superBoardIndex) => {
           return (
-            <div style={styles.board}>
+            <div className='board'>
               <Board
                 board={board}
                 onMove={partial(this.props.onMove, superRowIndex, superBoardIndex)}

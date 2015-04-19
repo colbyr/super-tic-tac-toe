@@ -1,0 +1,40 @@
+.inactive {
+  opacity: 0.5;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  width: 840px;
+}
+
+.board {
+  border: 1px solid #AAA;
+  height: 240px;
+  padding: 20px;
+  width: 240px;
+}
+
+.cell {
+  align-items: center;
+  border: 1px solid #EEE;
+  display: flex;
+  height: 80px;
+  justify-content: center;
+  width: 80px;
+  web-kit-user-select: none;
+  moz-user-select: none;
+  ms-user-select: none;
+}
+
+.super-row {
+  display: flex;
+  height: 280px;
+  width: 840px;
+}
+
+.row {
+  display: flex;
+  height: 80px;
+  width: 240px;
+}
