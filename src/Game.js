@@ -52,9 +52,8 @@ export default React.createClass({
   },
 
   getIsTurn() {
-    let info = UserInfo.get();
     let {activePlayer} = this.state.game;
-    return activePlayer === info[this.getGameKey()];
+    return this.state.game[activePlayer] === UserInfo.get().username;
   },
 
   getReadyToPlay() {
@@ -71,7 +70,7 @@ export default React.createClass({
       );
       return;
     }
-    this.firebaseRefs.game.set({
+    this.firebaseRefs.game.update({
       activePlayer: activePlayer === X ? O : X,
       game: React.addons.update(
         game,
