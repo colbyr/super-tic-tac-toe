@@ -97,31 +97,35 @@
 }
 
 .wonx::after {
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
   bottom: 0;
   content:'X';
-  display: block;
+  display: -webkit-flex;
+  display: flex;
   font-size: 180px;
   left: 0;
-  line-height: 280px;
   position: absolute;
   right: 0;
-  text-align: center;
   top: 0;
-  vertical-align: center;
 }
 
 .wono::after {
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
   bottom: 0;
   content:'O';
-  display: block;
+  display: -webkit-flex;
+  display: flex;
   font-size: 180px;
   left: 0;
-  line-height: 280px;
   position: absolute;
   right: 0;
-  text-align: center;
   top: 0;
-  vertical-align: center;
 }
 
 .active {
