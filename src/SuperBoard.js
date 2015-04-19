@@ -5,6 +5,10 @@ import React, { PropTypes } from 'react/addons';
 const SuperBoard = React.createClass({
   propTypes: {
     onMove: PropTypes.func.isRequired,
+    focused: PropTypes.shape({
+      superRowIndex: PropTypes.number.isRequired,
+      superColumnIndex: PropTypes.number.isRequired,
+    }),
     superBoard: PropTypes.arrayOf(
       PropTypes.arrayOf(
         PropTypes.arrayOf(
@@ -24,18 +28,21 @@ const SuperBoard = React.createClass({
     );
   },
 
-  renderBoard(superRow, board, superBoard) {
-  },
-
   renderRow(superRow, superRowIndex) {
+    let focusedCoords = this.props.focused;
     return (
       <div className='super-row'>
-        {superRow.map((board, superBoardIndex) => {
+        {superRow.map((board, superColumnIndex) => {
+          let disabled = !focusedCoords ?
+            false :
+            (focusedCoords.superRowIndex !== superRowIndex ||
+             focusedCoords.superColumnIndex !== superColumnIndex);
           return (
             <div className='board'>
               <Board
                 board={board}
-                onMove={partial(this.props.onMove, superRowIndex, superBoardIndex)}
+                disabled={disabled}
+                onMove={partial(this.props.onMove, superRowIndex, superColumnIndex)}
               />
             </div>
           );

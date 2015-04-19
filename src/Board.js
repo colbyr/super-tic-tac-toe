@@ -15,20 +15,24 @@ const Board = React.createClass({
         PropTypes.string.isRequired
       ).isRequired
     ).isRequired,
+    disabled: PropTypes.bool.isRequired,
     onMove: PropTypes.func.isRequired,
   },
 
+  getDefaultProps() {
+    return {
+      disabled: false,
+    };
+  },
+
   getIsActive() {
-    return !winner(this.props.board);
+    return !this.props.disabled && !winner(this.props.board);
   },
 
   render() {
-    let isWon = winner(this.props.board);
-    let classes = classNames({inactive: isWon})
+    let classes = classNames({inactive: !this.getIsActive()});
     return (
-      <div
-        className={classes}
-      >
+      <div className={classes} >
         {this.props.board.map(this.renderRow)}
       </div>
     );
