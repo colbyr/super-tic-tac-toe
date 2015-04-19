@@ -38493,12 +38493,16 @@ var Board = React.createClass({
         className: "row" },
       row.map(function (value, columnIndex) {
         var isEmpty = value === E;
+        var isClickable = isEmpty && _this.getIsActive();
         return React.createElement(
           "div",
           {
             key: "cell-" + columnIndex,
-            onClick: isEmpty && _this.getIsActive() ? partial(_this.props.onMove, rowIndex, columnIndex) : null,
-            className: "cell" },
+            onClick: isClickable ? partial(_this.props.onMove, rowIndex, columnIndex) : null,
+            className: "cell",
+            style: {
+              cursor: isClickable ? "pointer" : "default"
+            } },
           isEmpty ? "" : value
         );
       })
@@ -38507,7 +38511,7 @@ var Board = React.createClass({
 
 module.exports = Board;
 
-},{"./constants.js":227,"./matrix_functions.js":229,"classnames":2,"lodash":8,"react/addons":48}],223:[function(require,module,exports){
+},{"./constants.js":228,"./matrix_functions.js":230,"classnames":2,"lodash":8,"react/addons":48}],223:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38622,7 +38626,7 @@ module.exports = React.createClass({
     );
   } });
 
-},{"./SuperBoard.js":226,"./constants.js":227,"./matrix_functions.js":229,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],224:[function(require,module,exports){
+},{"./SuperBoard.js":226,"./constants.js":228,"./matrix_functions.js":230,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],224:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38645,25 +38649,46 @@ var PropTypes = _reactAddons.PropTypes;
 
 var ReactFireMixin = _interopRequire(require("reactfire"));
 
+var UserInfo = _interopRequire(require("./UserInfo.js"));
+
+function createNewGame(callback) {
+  var games = new Firebase("https://sttt.firebaseio.com/games");
+  var ref = games.push({
+    activePlayer: sample([X, O]),
+    game: emptySuperBoard(),
+    lastMove: null }, function (error) {
+    if (error) {
+      console.error(error);
+      return;
+    }
+    callback(ref.key());
+  });
+}
+
 var NewGame = React.createClass({
   displayName: "NewGame",
 
   contextTypes: {
     router: PropTypes.func.isRequired },
 
-  componentWillMount: function componentWillMount() {
+  getInitialState: function getInitialState() {
+    return {
+      pending: false };
+  },
+
+  handleUserUpdate: function handleUserUpdate(_ref) {
+    var value = _ref.target.value;
+
+    UserInfo.set({
+      username: value });
+  },
+
+  handleNewGame: function handleNewGame() {
     var _this = this;
 
-    var games = new Firebase("https://sttt.firebaseio.com/games");
-    var ref = games.push({
-      activePlayer: sample([X, O]),
-      game: emptySuperBoard(),
-      lastMove: null }, function (error) {
-      if (error) {
-        console.error(error);
-        return;
-      }
-      _this.context.router.replaceWith("play_game", { game_id: ref.key() });
+    this.setState({ pending: true });
+    createNewGame(function (key) {
+      _this.context.router.replaceWith("play_game", { game_id: key });
     });
   },
 
@@ -38671,15 +38696,39 @@ var NewGame = React.createClass({
     return React.createElement(
       "div",
       null,
-      "creating new game..."
+      React.createElement(
+        "div",
+        null,
+        React.createElement(
+          "label",
+          null,
+          "What's your name? ",
+          React.createElement("input", {
+            onChange: this.handleUserUpdate,
+            placeholder: "enter user name",
+            value: UserInfo.get().username
+          })
+        )
+      ),
+      React.createElement("br", null),
+      this.renderNewGameButton()
     );
-  }
+  },
 
-});
+  renderNewGameButton: function renderNewGameButton() {
+    if (!UserInfo.get().username || this.state.pending) {
+      return null;
+    }
+    return React.createElement(
+      "button",
+      { onClick: this.handleNewGame },
+      "Start New Game"
+    );
+  } });
 
 module.exports = NewGame;
 
-},{"./constants.js":227,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],225:[function(require,module,exports){
+},{"./UserInfo.js":227,"./constants.js":228,"firebase":3,"lodash":8,"react/addons":48,"reactfire":221}],225:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38704,7 +38753,7 @@ module.exports = React.createElement(
   React.createElement(DefaultRoute, { handler: NewGame, name: "new_game" })
 );
 
-},{"./Game":223,"./NewGame":224,"./routes/App":230,"react-router":33,"react/addons":48}],226:[function(require,module,exports){
+},{"./Game":223,"./NewGame":224,"./routes/App":231,"react-router":33,"react/addons":48}],226:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38764,6 +38813,24 @@ module.exports = SuperBoard;
 },{"./Board.js":222,"lodash":8,"react/addons":48}],227:[function(require,module,exports){
 "use strict";
 
+var merge = require("lodash").merge;
+
+var LS_KEY = "STTT_USER_INFO";
+
+var UserInfo = {
+  get: function get() {
+    return JSON.parse(window.localStorage.getItem(LS_KEY)) || {};
+  },
+
+  set: function set(info) {
+    return window.localStorage.setItem(LS_KEY, JSON.stringify(merge(UserInfo.get(), info)));
+  } };
+
+module.exports = UserInfo;
+
+},{"lodash":8}],228:[function(require,module,exports){
+"use strict";
+
 exports.emptyRow = emptyRow;
 exports.emptyBoard = emptyBoard;
 exports.emptySuperRow = emptySuperRow;
@@ -38794,7 +38861,7 @@ function emptySuperBoard() {
   return [emptySuperRow(), emptySuperRow(), emptySuperRow()];
 }
 
-},{}],228:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38823,7 +38890,7 @@ module.exports = {
   rootNode: rootNode
 };
 
-},{"./Routes":225,"flux":4,"general-store":7,"react-router":33,"react/addons":48}],229:[function(require,module,exports){
+},{"./Routes":225,"flux":4,"general-store":7,"react-router":33,"react/addons":48}],230:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38892,7 +38959,7 @@ function superWinner(superBoard) {
   return winner(boardWinners);
 }
 
-},{"./constants":227,"lodash":8}],230:[function(require,module,exports){
+},{"./constants":228,"lodash":8}],231:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -38910,4 +38977,4 @@ module.exports = React.createClass({
 
 });
 
-},{"react-router":33,"react/addons":48}]},{},[228]);
+},{"react-router":33,"react/addons":48}]},{},[229]);
