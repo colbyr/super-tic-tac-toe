@@ -108,7 +108,7 @@ const Game = React.createClass({
     if (isSuperWon(game)) {
       return (
         <h1>
-          OMG <strong>{superWinner(game)}</strong> WINS!
+          <strong>{superWinner(game)}</strong> WINS!
         </h1>
       );
     }
