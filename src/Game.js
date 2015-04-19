@@ -4,6 +4,8 @@ import { emptySuperBoard, O, X } from './constants.js';
 import { superWinner, winner } from './matrix_functions.js';
 import React from 'react/addons';
 import { RouteHandler } from 'react-router';
+import ReactFireMixin from 'reactfire';
+import Firebase from 'firebase';
 
 function getFocused(superBoard, lastMove) {
   if (
@@ -33,10 +35,9 @@ export default React.createClass({
     this.bindAsObject(new Firebase('https://sttt.firebaseio.com/game'), 'fireGame');
   },
 
-  componentWillMount: function() {
+  componentWillUnmount: function() {
     this.unbind('fireGame');
   },
-
   handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
     this.state.game[superRowIndex][superColumnIndex][rowIndex][columnIndex] = this.state.activePlayer;
     this.setState({
@@ -60,7 +61,7 @@ export default React.createClass({
     }
     return (
       <div>
-        <p>Active player: {this.state.fireGame.activePlayer}</p>
+        <p>Active player: {this.state.activePlayer}</p>
         <SuperBoard
           focused={getFocused(this.state.game, this.state.lastMove)}
           onMove={this.handleMove}
