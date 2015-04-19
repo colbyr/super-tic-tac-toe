@@ -42,11 +42,15 @@ const Board = React.createClass({
         className='row'>
         {row.map((value, columnIndex) => {
           let isEmpty = value === E;
+          let isClickable = isEmpty && this.getIsActive();
           return (
             <div
               key={`cell-${columnIndex}`}
-              onClick={(isEmpty && this.getIsActive()) ? partial(this.props.onMove, rowIndex, columnIndex) : null}
-              className='cell'>
+              onClick={isClickable ? partial(this.props.onMove, rowIndex, columnIndex) : null}
+              className='cell'
+              style={{
+                cursor: isClickable ? 'pointer' : 'default'
+              }}>
               {isEmpty ? '' : value}
             </div>
           );
