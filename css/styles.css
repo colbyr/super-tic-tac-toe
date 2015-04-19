@@ -91,19 +91,31 @@
 }
 
 .wonx::after {
+  bottom: 0;
   content:'X';
-  font-size: 280px;
-  left: 45px;
-  top: 27px;
+  display: block;
+  font-size: 180px;
+  left: 0;
+  line-height: 280px;
   position: absolute;
+  right: 0;
+  text-align: center;
+  top: 0;
+  vertical-align: center;
 }
 
 .wono::after {
+  bottom: 0;
   content:'O';
-  font-size: 280px;
-  left: 30px;
-  top: 24px;
+  display: block;
+  font-size: 180px;
+  left: 0;
+  line-height: 280px;
   position: absolute;
+  right: 0;
+  text-align: center;
+  top: 0;
+  vertical-align: center;
 }
 
 .active {
