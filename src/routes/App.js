@@ -5,7 +5,9 @@ export default React.createClass({
 
   render() {
     return (
-      <RouteHandler />
+      <div className="root">
+        <RouteHandler />
+      </div>
     );
   }
 
