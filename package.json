@@ -27,6 +27,7 @@
   "homepage": "https://github.com/colbyr/react-template",
   "dependencies": {
     "classnames": "^1.2.0",
+    "express": "^4.12.3",
     "firebase": "^2.2.4",
     "immutable": "^3.6.4",
     "lodash": "^3.7.0",
