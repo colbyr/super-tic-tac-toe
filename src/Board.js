@@ -1,4 +1,4 @@
-import { E } from './constants.js';
+import { E,X,O } from './constants.js';
 import { winner } from './matrix_functions.js';
 import { merge, partial } from 'lodash';
 import React, { PropTypes } from 'react/addons';
@@ -27,7 +27,11 @@ const Board = React.createClass({
   },
 
   render() {
-    let classes = classNames({inactive: !this.getIsActive()});
+    debugger;
+    let won = winner(this.props.board);
+    let classes = classNames({inactive: !this.getIsActive()},
+                             {wonx: won === X},
+                             {wono: won === O});
     return (
       <div className={classes} >
         {this.props.board.map(this.renderRow)}

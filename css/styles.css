@@ -11,6 +11,7 @@
   height: 240px;
   padding: 20px;
   width: 240px;
+  position: relative;
 }
 
 .board:first-of-type {
@@ -84,7 +85,18 @@
 
 .wonx::after {
   content:'X';
-  font-size:250px;
+  font-size: 280px;
+  left: 45px;
+  top: 27px;
+  position: absolute;
+}
+
+.wono::after {
+  content:'O';
+  font-size: 280px;
+  left: 30px;
+  top: 24px;
+  position: absolute;
 }
 
 .active {
