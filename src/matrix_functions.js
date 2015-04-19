@@ -31,7 +31,11 @@ export function winner(board) {
            .map(_.uniq)
            .filter(array => array.length === 1 && array[0] !== E)
            .first().first()
-           .value();
+           .value() || E;
+}
+
+export function isWon(board) {
+  return winner(board) !== E;
 }
 
 export function superWinner(superBoard) {
@@ -41,4 +45,8 @@ export function superWinner(superBoard) {
    .chunk(3)
    .value();
   return winner(boardWinners);
+}
+
+export function isSuperWon(superBoard) {
+  return superWinner(superBoard) !== E;
 }

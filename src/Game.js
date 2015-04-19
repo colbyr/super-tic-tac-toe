@@ -2,7 +2,7 @@ import Firebase from 'firebase';
 import { cloneDeep, sample } from 'lodash';
 import SuperBoard from './SuperBoard.js';
 import { emptySuperBoard, O, X } from './constants.js';
-import { superWinner, winner } from './matrix_functions.js';
+import { isSuperWon, isWon, superWinner } from './matrix_functions.js';
 import React, { PropTypes } from 'react/addons';
 import ReactFireMixin from 'reactfire';
 import UserInfo from './UserInfo.js';
@@ -10,7 +10,7 @@ import UserInfo from './UserInfo.js';
 function getFocused(superBoard, lastMove) {
   if (
     !lastMove ||
-    winner(superBoard[lastMove.rowIndex][lastMove.columnIndex])
+    isWon(superBoard[lastMove.rowIndex][lastMove.columnIndex])
   ) {
     return null;
   }
@@ -20,7 +20,7 @@ function getFocused(superBoard, lastMove) {
   };
 }
 
-export default React.createClass({
+const Game = React.createClass({
   contextTypes: {
     router: PropTypes.func.isRequired,
   },
@@ -86,22 +86,12 @@ export default React.createClass({
       return <p>loading</p>;
     }
     let {activePlayer, lastMove, game} = this.state.game;
-    if (superWinner(game)) {
-      return (
-        <h1>
-          OMG
-          {' '}
-          <strong>{activePlayer === X ? O : X}</strong>
-          {' '}
-          WINS!
-        </h1>
-      );
-    }
     return (
       <div>
         {this.renderInvite()}
         {this.renderActivePlayer()}
         <SuperBoard
+          complete={isSuperWon(game)}
           focused={getFocused(game, lastMove)}
           onMove={this.handleMove}
           superBoard={game}
@@ -114,7 +104,14 @@ export default React.createClass({
     if (!this.getReadyToPlay()) {
       return null;
     }
-    let {isLocal, activePlayer} = this.state.game;
+    let {isLocal, activePlayer, game} = this.state.game;
+    if (isSuperWon(game)) {
+      return (
+        <h1>
+          OMG <strong>{superWinner(game)}</strong> WINS!
+        </h1>
+      );
+    }
     if (this.getIsTurn()) {
       return (
         <p>
@@ -141,6 +138,7 @@ export default React.createClass({
         />
       </label>
     );
-  }
+  },
 });
 
+export default Game;

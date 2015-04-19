@@ -1,5 +1,5 @@
 import { E,X,O } from './constants.js';
-import { winner } from './matrix_functions.js';
+import { isWon, winner } from './matrix_functions.js';
 import { merge, partial } from 'lodash';
 import React, { PropTypes } from 'react/addons';
 import classNames from 'classnames';
@@ -12,18 +12,20 @@ const Board = React.createClass({
         PropTypes.string.isRequired
       ).isRequired
     ).isRequired,
+    complete: PropTypes.bool.isRequired,
     disabled: PropTypes.bool.isRequired,
     onMove: PropTypes.func.isRequired,
   },
 
   getDefaultProps() {
     return {
+      complete: false,
       disabled: false,
     };
   },
 
   getIsActive() {
-    return !this.props.disabled && !winner(this.props.board);
+    return !this.props.disabled && !isWon(this.props.board);
   },
 
   render() {
@@ -47,7 +49,7 @@ const Board = React.createClass({
         className='row'>
         {row.map((value, columnIndex) => {
           let isEmpty = value === E;
-          let isClickable = isEmpty && this.getIsActive();
+          let isClickable = isEmpty && this.getIsActive() && !this.props.complete;
           return (
             <div
               key={`cell-${columnIndex}`}

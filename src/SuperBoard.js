@@ -4,6 +4,7 @@ import React, { PropTypes } from 'react/addons';
 
 const SuperBoard = React.createClass({
   propTypes: {
+    complete: PropTypes.bool.isRequired,
     onMove: PropTypes.func.isRequired,
     focused: PropTypes.shape({
       superRowIndex: PropTypes.number.isRequired,
@@ -18,6 +19,12 @@ const SuperBoard = React.createClass({
         ).isRequired
       ).isRequired
     ).isRequired,
+  },
+
+  getDefaultProps() {
+    return {
+      complete: false,
+    };
   },
 
   render() {
@@ -41,6 +48,7 @@ const SuperBoard = React.createClass({
             <div className='board'>
               <Board
                 board={board}
+                complete={this.props.complete}
                 disabled={disabled}
                 onMove={partial(this.props.onMove, superRowIndex, superColumnIndex)}
               />
