@@ -37,14 +37,28 @@ export default React.createClass({
     );
   },
 
+  getGameKey() {
+    return this.firebaseRefs.game.key();
+  },
+
   getInitialState() {
     return {};
+  },
+
+  getInviteURL() {
+    let currentPiece = UserInfo.get()[this.getGameKey()];
+    let {username} = UserInfo.get();
+    return `${location.toString()}/${currentPiece === X ? O : X}`;
   },
 
   getIsTurn() {
     let info = UserInfo.get();
     let {activePlayer} = this.state.game;
-    return activePlayer === info[this.firebaseRefs.game.key()];
+    return activePlayer === info[this.getGameKey()];
+  },
+
+  getReadyToPlay() {
+    return (this.state.game.O && this.state.game.X);
   },
 
   handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
@@ -85,6 +99,7 @@ export default React.createClass({
     }
     return (
       <div>
+        {this.renderInvite()}
         {this.renderActivePlayer()}
         <SuperBoard
           focused={getFocused(game, lastMove)}
@@ -96,6 +111,9 @@ export default React.createClass({
   },
 
   renderActivePlayer() {
+    if (!this.getReadyToPlay()) {
+      return null;
+    }
     if (this.getIsTurn()) {
       return (
         <p>It's your turn, <strong>{UserInfo.get().username}</strong>!</p>
@@ -103,5 +121,21 @@ export default React.createClass({
     }
     return <p>It's {this.state.game.activePlayer}'s turn.</p>
   },
+
+  renderInvite() {
+    if (this.getReadyToPlay()) {
+      return null;
+    }
+    return (
+      <label>
+        Invite URL:
+        {' '}
+        <input
+          style={{width: 300}}
+          value={this.getInviteURL()}
+        />
+      </label>
+    );
+  }
 });
 
