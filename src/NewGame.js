@@ -1,6 +1,6 @@
 import { emptySuperBoard, O, X } from './constants.js';
 import Firebase from 'firebase';
-import { sample } from 'lodash';
+import { merge, sample } from 'lodash';
 import React, { PropTypes } from 'react/addons';
 import ReactFireMixin from 'reactfire';
 import UserInfo from './UserInfo.js'
@@ -26,15 +26,22 @@ const NewGame = React.createClass({
     router: PropTypes.func.isRequired,
   },
 
+  componentDidUpdate() {
+    UserInfo.set(this.state.info);
+  },
+
   getInitialState() {
     return {
+      info: UserInfo.get(),
       pending: false,
     };
   },
 
   handleUserUpdate({target: {value}}) {
-    UserInfo.set({
-      username: value,
+    this.setState({
+      info: merge({}, this.state.info, {
+        username: value,
+      }),
     });
   },
 
@@ -61,7 +68,7 @@ const NewGame = React.createClass({
             <input
               onChange={this.handleUserUpdate}
               placeholder="enter user name"
-              value={UserInfo.get().username}
+              value={this.state.info.username}
             />
           </label>
         </div>
@@ -72,7 +79,7 @@ const NewGame = React.createClass({
   },
 
   renderNewGameButton() {
-    if (!UserInfo.get().username || this.state.pending) {
+    if (!this.state.info.username || this.state.pending) {
       return null;
     }
     return (
