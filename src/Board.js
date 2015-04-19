@@ -4,9 +4,6 @@ import { merge, partial } from 'lodash';
 import React, { PropTypes } from 'react/addons';
 import classNames from 'classnames';
 
-var styles = {
-};
-
 const Board = React.createClass({
 
   propTypes: {
