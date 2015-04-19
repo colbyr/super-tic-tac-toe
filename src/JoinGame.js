@@ -23,17 +23,46 @@ const JoinGame = React.createClass({
     router: PropTypes.func.isRequired,
   },
 
-  componentWillMount() {
-    UserInfo.get().username ? this.continueToGame() : null;
+  mixins: [
+    ReactFireMixin,
+  ],
+
+  componentDidUpdate() {
+    UserInfo.set(this.state.info);
   },
 
-  continueToGame() {
+  componentWillMount() {
+    this.bindAsObject(
+      new Firebase(
+        'https://sttt.firebaseio.com/games/' +
+          this.context.router.getCurrentParams().game_id
+      ),
+      "game"
+    );
+  },
+
+  getHasUserName() {
+    return !!this.state.info.username;
+  },
+
+  getGameIsFull() {
+    return !this.state.game || this.state.game.X && this.state.game.O;
+  },
+
+  getInitialState() {
+    return {
+      info: UserInfo.get(),
+      startingGame: false,
+    };
+  },
+
+  handleJoinGame() {
+    if (this.getGameIsFull()) {
+      return;
+    }
+    this.setState({startingGame: true});
     let {game_id, as_player} = this.context.router.getCurrentParams();
     let username = this.state.info.username;
-    debugger;
-    UserInfo.set({
-      [as_player]: username,
-    });
     joinGame(game_id, as_player, () => {
       this.context.router.replaceWith(
         'play_game',
@@ -42,13 +71,7 @@ const JoinGame = React.createClass({
     });
   },
 
-  getInitialState() {
-    return {
-      info: UserInfo.get(),
-    };
-  },
-
-  handleUserUpdate({target: {value}}) {
+  handleInfoUpdate({target: {value}}) {
     this.setState({
       info: merge({}, this.state.info, {
         username: value,
@@ -57,42 +80,52 @@ const JoinGame = React.createClass({
   },
 
   render() {
-    let {game_id, as_player} = this.context.router.getCurrentParams();
-    let username = UserInfo.get().username;
+    if (!this.state.game) {
+      return <p>loading...</p>;
+    }
     return (
       <div>
-        {this.renderNewPlayer()}
+        {this.renderUserName()}
+        {this.renderJoin()}
       </div>
     )
   },
 
-  renderNewPlayer() {
-    return (
-      <div>
-        <label>
-          Welcome New Player! Please enter a name for yourself:
-          <input
-           onChange={this.handleUserUpdate}
-           placeholder="nickname"
-           value={this.state.info.username}
-          />
-        </label>
-        {this.renderContinue()}
-      </div>
-    );
-  },
-
-  renderContinue() {
-    if (!this.state.info.username) {
+  renderJoin() {
+    if (this.getGameIsFull()) {
+      return (
+        <p>This game is already full.</p>
+      );
+    }
+    if (!this.getHasUserName()) {
       return null;
     }
     return (
-      <button onClick={this.continueToGame}>
-        Continue
+      <button onClick={this.handleJoinGame}>
+        Join game
       </button>
     )
-  }
-    
+  },
+
+  renderUserName() {
+    if (this.getGameIsFull()) {
+      return null;
+    }
+    if (this.state.startingGame) {
+      return <p>Joining game...</p>;
+    }
+    return (
+      <label>
+        Please enter a name for yourself:
+        {' '}
+        <input
+          onChange={this.handleInfoUpdate}
+          placeholder="nickname"
+          value={this.state.info.username}
+        />
+      </label>
+    );
+  },
 });
 
 export default JoinGame;

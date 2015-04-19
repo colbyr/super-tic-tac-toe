@@ -48,7 +48,8 @@ export default React.createClass({
   getInviteURL() {
     let currentPiece = UserInfo.get()[this.getGameKey()];
     let {username} = UserInfo.get();
-    return `${location.toString()}/${currentPiece === X ? O : X}`;
+    let path = `/${this.getGameKey()}/${currentPiece === X ? O : X}`;
+    return location.toString().replace('/' + this.getGameKey(), '') + '/join' + path;
   },
 
   getIsTurn() {
