@@ -58,7 +58,7 @@ export default React.createClass({
   },
 
   getReadyToPlay() {
-    return (this.state.game.O && this.state.game.X);
+    return this.state.game.isLocal || (this.state.game.O && this.state.game.X);
   },
 
   handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
@@ -114,9 +114,14 @@ export default React.createClass({
     if (!this.getReadyToPlay()) {
       return null;
     }
+    let {isLocal, activePlayer} = this.state.game;
     if (this.getIsTurn()) {
       return (
-        <p>It's your turn, <strong>{UserInfo.get().username}</strong>!</p>
+        <p>
+          It's your turn,
+          {' '}
+          <strong>{isLocal ? activePlayer : UserInfo.get().username}</strong>!
+        </p>
       );
     }
     return <p>It's {this.state.game.activePlayer}'s turn.</p>
