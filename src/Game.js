@@ -1,11 +1,11 @@
+import Firebase from 'firebase';
 import { cloneDeep, sample } from 'lodash';
 import SuperBoard from './SuperBoard.js';
 import { emptySuperBoard, O, X } from './constants.js';
 import { superWinner, winner } from './matrix_functions.js';
-import React from 'react/addons';
-import { RouteHandler } from 'react-router';
+import React, { PropTypes } from 'react/addons';
 import ReactFireMixin from 'reactfire';
-import Firebase from 'firebase';
+import { RouteHandler } from 'react-router';
 
 function getFocused(superBoard, lastMove) {
   if (
@@ -21,7 +21,22 @@ function getFocused(superBoard, lastMove) {
 }
 
 export default React.createClass({
+  contextTypes: {
+    router: PropTypes.func.isRequired,
+  },
+
   mixins: [ReactFireMixin],
+
+  componentWillMount() {
+    console.log(this.context.router.getCurrentParams().game_id)
+    this.bindAsObject(
+      new Firebase(
+        'https://sttt.firebaseio.com/games/' +
+          this.context.router.getCurrentParams().game_id
+      ),
+      "fireGame"
+    );
+  },
 
   getInitialState() {
     return {
@@ -31,13 +46,6 @@ export default React.createClass({
     };
   },
 
-  componentWillMount: function() {
-    this.bindAsObject(new Firebase('https://sttt.firebaseio.com/game'), 'fireGame');
-  },
-
-  componentWillUnmount: function() {
-    this.unbind('fireGame');
-  },
   handleMove(superRowIndex, superColumnIndex, rowIndex, columnIndex) {
     this.state.game[superRowIndex][superColumnIndex][rowIndex][columnIndex] = this.state.activePlayer;
     this.setState({
@@ -48,6 +56,10 @@ export default React.createClass({
   },
 
   render() {
+    if (!this.state.fireGame) {
+      return <p>loading</p>;
+    }
+    console.log(this.state.fireGame)
     if (superWinner(this.state.game)) {
       return (
         <h1>
