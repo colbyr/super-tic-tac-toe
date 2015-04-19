@@ -36,10 +36,6 @@ export default React.createClass({
     );
   },
 
-  componentWillUnmount() {
-    this.unbind('game');
-  },
-
   getInitialState() {
     return {};
   },
